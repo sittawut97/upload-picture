@@ -1,6 +1,5 @@
 package com.example.apiupload.filter;
 
-import com.example.apiupload.properties.FileUploadProperties;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -24,11 +22,9 @@ public class RateLimitingFilter implements Filter {
     
     private static final Logger log = LoggerFactory.getLogger(RateLimitingFilter.class);
     
-    @Autowired
-    private FileUploadProperties properties;
-    
     private final ConcurrentHashMap<String, AtomicInteger> requestCounts = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Long> lastResetTime = new ConcurrentHashMap<>();
+    private int maxUploadRequestsPerMinute = 60; // Default value
     
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -74,6 +70,6 @@ public class RateLimitingFilter implements Filter {
         AtomicInteger count = requestCounts.computeIfAbsent(clientIp, k -> new AtomicInteger(0));
         int currentCount = count.incrementAndGet();
         
-        return currentCount <= properties.getMaxUploadRequestsPerMinute();
+        return currentCount <= maxUploadRequestsPerMinute;
     }
 }
