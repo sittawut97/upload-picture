@@ -28,10 +28,13 @@ public class S3Config {
     public S3Client s3Client() {
         AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
         
+        Region r2Region = (region != null && !region.isEmpty()) ? 
+            Region.of(region) : Region.US_EAST_1;
+        
         S3Client builder = S3Client.builder()
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .endpointOverride(URI.create(endpoint))
-                .region(Region.US_EAST_1)
+                .region(r2Region)
                 .build();
         
         return builder;
